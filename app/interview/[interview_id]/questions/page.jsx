@@ -6,9 +6,9 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { useToast } from "@/components/ui/use-toast"
 import { use } from 'react'
-import { Vapi } from '@vapi-ai/web';
+import Vapi from '@vapi-ai/web';
 
-const VAPI_PUBLIC_API_KEY = process.env.NEXT_PUBLIC_VAPI_API_KEY;
+const VAPI_PUBLIC_API_KEY = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY;
 
 export default function InterviewQuestions({ params }) {
     const router = useRouter();
@@ -74,6 +74,17 @@ export default function InterviewQuestions({ params }) {
         });
         vapiInstance.on('error', (e) => {
             console.error('Vapi error:', e);
+            // Log additional details if available, e.g., from network response
+            if (e.response) {
+                console.error('Vapi error response data:', e.response.data);
+                console.error('Vapi error response status:', e.response.status);
+                console.error('Vapi error response headers:', e.response.headers);
+            } else if (e.request) {
+                console.error('Vapi error request:', e.request);
+            } else {
+                console.error('Vapi error message:', e.message);
+                console.error('Vapi error JSON:', JSON.stringify(e, null, 2));
+            }
             toast({
                 title: "Vapi Error",
                 description: e.message || "An error occurred with the Vapi assistant.",
@@ -151,14 +162,17 @@ export default function InterviewQuestions({ params }) {
             try {
                 const assistantConfig = {
                     model: {
+                        provider: "openai",
                         modelId: "gpt-3.5-turbo",
-                        systemPrompt: `You are an interview assistant. The user is a candidate for ${interview?.jobPosition || 'a role'}. You need to ask questions from the following list sequentially: ${interviewQuestions.current.map(q => q.question).join('\n')}. After each user response, provide brief feedback or acknowledge, then ask the next question. Do not ask all questions at once. Start with the first question from the list.`, // Adjusted prompt
+                        systemPrompt: `You are an interview assistant. The user is a candidate for ${interview?.jobPosition || 'a role'}. You need to ask questions from the following list sequentially: ${interviewQuestions.current.map(q => q.question).join('\n')}. After each user response, provide brief feedback or acknowledge, then ask the next question. Do not ask all questions at once. Start with the first question from the list.`,
                     },
                     voice: {
+                        provider: "vapi",
                         voiceId: "mia-20",
                     },
                 };
                 
+                console.log('Vapi assistantConfig being sent:', JSON.stringify(assistantConfig, null, 2));
                 await vapi.start(assistantConfig);
                 setTranscript([]);
                 currentQuestionIndex.current = 0;
