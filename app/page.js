@@ -20,8 +20,8 @@ export default function Home() {
         {/* Logo with fade-in animation */}
         <div className="mx-auto mb-8 w-40 h-40 flex items-center justify-center fade-in-up delay-100">
           <Image
-            src="/AI_Logo.png"
-            alt="AI Logo"
+            src="/logo.png"
+            alt="Logo"
             width={160}
             height={160}
             className="object-contain"
