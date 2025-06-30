@@ -9,6 +9,7 @@ import { use } from 'react'
 import Vapi from '@vapi-ai/web';
 
 const VAPI_PUBLIC_API_KEY = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY;
+const ASSISTANT_ID = '71bd36bf-2135-427e-9a6e-3a392ae002af';
 
 export default function InterviewQuestions({ params }) {
     const router = useRouter();
@@ -27,7 +28,6 @@ export default function InterviewQuestions({ params }) {
 
     useEffect(() => {
         if (!VAPI_PUBLIC_API_KEY) {
-            console.error("VAPI_PUBLIC_API_KEY is not set. Please set it in your .env.local file.");
             toast({
                 title: "Error",
                 description: "Vapi API key not configured.",
@@ -40,13 +40,13 @@ export default function InterviewQuestions({ params }) {
         setVapi(vapiInstance);
 
         vapiInstance.on('speech-start', () => {
-            console.log('Speech started');
+            // Speech started
         });
         vapiInstance.on('speech-end', () => {
-            console.log('Speech ended');
+            // Speech ended
         });
         vapiInstance.on('volume-level', (volume) => {
-            // console.log('Volume level:', volume);
+            // Volume level updates
         });
         vapiInstance.on('call-start', () => {
             setIsVapiConnected(true);
@@ -64,27 +64,12 @@ export default function InterviewQuestions({ params }) {
             handleSubmit();
         });
         vapiInstance.on('message', (message) => {
-            console.log('Vapi message:', message);
             if (message.type === 'transcript') {
                 setTranscript(prev => [...prev, { speaker: message.role === 'assistant' ? 'ai' : 'user', text: message.transcript }]);
                 setCurrentSpeaker(message.role === 'assistant' ? 'ai' : 'user');
-            } else if (message.type === 'call-status' && message.status === 'connected') {
-                // This might indicate the initial connection successful
             }
         });
         vapiInstance.on('error', (e) => {
-            console.error('Vapi error:', e);
-            // Log additional details if available, e.g., from network response
-            if (e.response) {
-                console.error('Vapi error response data:', e.response.data);
-                console.error('Vapi error response status:', e.response.status);
-                console.error('Vapi error response headers:', e.response.headers);
-            } else if (e.request) {
-                console.error('Vapi error request:', e.request);
-            } else {
-                console.error('Vapi error message:', e.message);
-                console.error('Vapi error JSON:', JSON.stringify(e, null, 2));
-            }
             toast({
                 title: "Vapi Error",
                 description: e.message || "An error occurred with the Vapi assistant.",
@@ -110,7 +95,6 @@ export default function InterviewQuestions({ params }) {
                     .single();
 
                 if (error) {
-                    console.error('Supabase Error:', error);
                     throw error;
                 }
 
@@ -125,11 +109,9 @@ export default function InterviewQuestions({ params }) {
                         : data.questionList;
                     
                     if (!Array.isArray(parsedQuestionList)) {
-                        console.error('questionList is not an array:', parsedQuestionList);
                         parsedQuestionList = [];
                     }
                 } catch (parseError) {
-                    console.error('Error parsing questionList:', parseError);
                     parsedQuestionList = [];
                 }
 
@@ -142,7 +124,6 @@ export default function InterviewQuestions({ params }) {
                 interviewQuestions.current = parsedQuestionList;
 
             } catch (error) {
-                console.error('Error fetching interview:', error);
                 toast({
                     title: "Error",
                     description: "Failed to load interview details. Please try again.",
@@ -160,24 +141,10 @@ export default function InterviewQuestions({ params }) {
     const startCall = async () => {
         if (vapi && !isVapiConnected) {
             try {
-                const assistantConfig = {
-                    model: {
-                        provider: "openai",
-                        modelId: "gpt-3.5-turbo",
-                        systemPrompt: `You are an interview assistant. The user is a candidate for ${interview?.jobPosition || 'a role'}. You need to ask questions from the following list sequentially: ${interviewQuestions.current.map(q => q.question).join('\n')}. After each user response, provide brief feedback or acknowledge, then ask the next question. Do not ask all questions at once. Start with the first question from the list.`,
-                    },
-                    voice: {
-                        provider: "vapi",
-                        voiceId: "mia-20",
-                    },
-                };
-                
-                console.log('Vapi assistantConfig being sent:', JSON.stringify(assistantConfig, null, 2));
-                await vapi.start(assistantConfig);
+                await vapi.start(ASSISTANT_ID);
                 setTranscript([]);
                 currentQuestionIndex.current = 0;
             } catch (e) {
-                console.error("Error starting Vapi call:", e);
                 toast({
                     title: "Error",
                     description: "Failed to start AI interview. Please try again.",
@@ -215,11 +182,6 @@ export default function InterviewQuestions({ params }) {
                 return acc;
             }, {});
 
-            console.log('Submitting answers (transcript):', {
-                interview_id: unwrappedParams.interview_id,
-                answers: answers
-            });
-
             const { data, error } = await supabase
                 .from('interviews')
                 .update({
@@ -232,21 +194,12 @@ export default function InterviewQuestions({ params }) {
                 .single();
 
             if (error) {
-                console.error('Supabase Error Details (transcript submission):', {
-                    message: error.message,
-                    details: error.details,
-                    hint: error.hint,
-                    code: error.code
-                });
                 throw new Error(error.message || 'Failed to save interview transcript');
             }
 
             if (!data) {
-                console.error('No data returned from transcript update operation');
                 throw new Error('Failed to save interview transcript - no data returned');
             }
-
-            console.log('Successfully updated interview with transcript:', data);
 
             toast({
                 title: "Success",
@@ -255,7 +208,6 @@ export default function InterviewQuestions({ params }) {
 
             router.push(`/interview/${unwrappedParams.interview_id}/complete`);
         } catch (error) {
-            console.error('Error submitting transcript:', error);
             toast({
                 title: "Error",
                 description: error.message || "Failed to save interview transcript. Please try again.",

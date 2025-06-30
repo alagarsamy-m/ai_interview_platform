@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,12 +13,17 @@ export default function CreateInterview() {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState({
     position: '',
     description: '',
     duration: '30',
     type: 'technical'
   });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -51,7 +56,6 @@ export default function CreateInterview() {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('API Error Response:', data);
         throw new Error(data.error || 'Failed to generate questions');
       }
 
@@ -61,7 +65,6 @@ export default function CreateInterview() {
 
       return data.questions;
     } catch (error) {
-      console.error('Error generating questions:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to generate questions. Please try again.",
@@ -76,15 +79,11 @@ export default function CreateInterview() {
     setLoading(true);
 
     try {
-      // Generate questions
       const questions = await generateQuestions();
       if (!questions) {
         throw new Error('Failed to generate questions');
       }
 
-      console.log('Generated questions:', questions);
-
-      // Create interview in Supabase
       const { data: interview, error } = await supabase
         .from('interviews')
         .insert([
@@ -94,15 +93,14 @@ export default function CreateInterview() {
             duration: formData.duration,
             type: formData.type,
             questionList: questions,
-            userEmail: null, // You can add user email if needed
-            interview_id: crypto.randomUUID() // Generate a unique interview ID
+            userEmail: null,
+            interview_id: crypto.randomUUID()
           }
         ])
         .select()
         .single();
 
       if (error) {
-        console.error('Supabase Error:', error);
         throw new Error(`Database error: ${error.message}`);
       }
 
@@ -110,17 +108,13 @@ export default function CreateInterview() {
         throw new Error('No interview data returned from database');
       }
 
-      console.log('Created interview:', interview);
-
       toast({
         title: "Success",
         description: "Interview created successfully!",
       });
 
-      // Redirect to the interview share page using the interview_id
       router.push(`/interview/${interview.interview_id}/share`);
     } catch (error) {
-      console.error('Error creating interview:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to create interview. Please try again.",
@@ -130,6 +124,21 @@ export default function CreateInterview() {
       setLoading(false);
     }
   };
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
