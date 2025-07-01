@@ -8,8 +8,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('Missing Supabase environment variables. Please check your .env.local file.');
 }
 
-console.log('Initializing Supabase client with URL:', supabaseUrl);
-
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
         persistSession: true,

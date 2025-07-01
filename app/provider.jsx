@@ -13,11 +13,8 @@ function Provider({ children }) {
     // Fetch the session asynchronously
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      console.log('[Provider] Session fetched on mount:', session);
       if (session?.user) {
         fetchUserData(session.user);  // Fetch user data if session is available
-      } else {
-        console.log('[Provider] No session user on mount');
       }
     };
 
@@ -26,12 +23,10 @@ function Provider({ children }) {
     // Listen for auth state changes (i.e., login/logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
-        console.log('[Provider] Auth state changed:', _event, session);
         if (session?.user) {
           fetchUserData(session.user);  // Fetch user data if logged in
         } else {
           setUser(null);  // Clear user if logged out
-          console.log('[Provider] No session user after auth state change');
         }
       }
     );
@@ -44,7 +39,6 @@ function Provider({ children }) {
   }, []);  // Empty dependency array ensures this runs only on mount
 
   const fetchUserData = async (authUser) => {
-    console.log('[Provider] Fetching user data for:', authUser);
     // Fetch user data from the 'Users' table
     const { data: existingUsers, error: fetchError } = await supabase
       .from("Users")
@@ -57,7 +51,6 @@ function Provider({ children }) {
     }
 
     if (!existingUsers || existingUsers.length === 0) {
-      console.log('[Provider] No existing user found, inserting new user');
       // If the user doesn't exist, insert new user data
       const { data: insertedUser, error: insertError } = await supabase
         .from("Users")
@@ -75,10 +68,8 @@ function Provider({ children }) {
         return;
       }
 
-      console.log('[Provider] Inserted user:', insertedUser?.[0]);
       setUser(insertedUser?.[0]);  // Set inserted user data
     } else {
-      console.log('[Provider] Existing user found:', existingUsers?.[0]);
       setUser(existingUsers?.[0]);  // Set existing user data
     }
   };

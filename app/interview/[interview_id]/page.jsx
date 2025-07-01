@@ -11,7 +11,6 @@ import { InterviewDataContext } from '@/context/InterviewDataContext'
 
 function Interview() {
     const { interview_id } = useParams();
-    console.log(interview_id)
     const [interviewData, setInterviewData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -35,7 +34,6 @@ function Interview() {
                 toast('Incorrect Interview Link')
             }
             setLoading(false)
-            console.log("Freque", Interviews)
         } catch (e) {
             setLoading(false)
             toast('Incorrect Interview Link')
@@ -63,8 +61,6 @@ function Interview() {
            return;
         }
         
-        console.log("Entered Details:",Interviews[0])
-        console.log("Setting interviewInfo with userName:", userName, "and interviewData:", Interviews[0]);
         setInterviewInfo({
             userName: userName,
             interviewData: Interviews[0]
@@ -78,10 +74,8 @@ function Interview() {
 
     useEffect(() => {
         if (params?.interview_id) {
-            console.log('Interview ID from params:', params.interview_id);
             fetchInterviewData();
         } else {
-            console.log('No interview ID in params');
             setError('Invalid interview link');
             setLoading(false);
         }
@@ -89,50 +83,30 @@ function Interview() {
 
     const fetchInterviewData = async () => {
         try {
-            console.log('Starting to fetch interview data...');
-            console.log('Using Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-            console.log('Interview ID:', params.interview_id);
-
-            const { data, error } = await supabase
+            const { data: interviews, error } = await supabase
                 .from('interviews')
                 .select('*')
                 .eq('interview_id', params.interview_id)
                 .single();
 
             if (error) {
-                console.error('Supabase error details:', {
-                    message: error.message,
-                    code: error.code,
-                    details: error.details,
-                    hint: error.hint
-                });
-                setError(error.message);
-                throw error;
+                console.error('Error fetching interview data:', error);
+                setError('Failed to load interview data');
+                setLoading(false);
+                return;
             }
 
-            if (!data) {
-                console.error('No interview data found for ID:', params.interview_id);
+            if (!interviews) {
                 setError('Interview not found');
-                throw new Error('Interview not found');
+                setLoading(false);
+                return;
             }
 
-            console.log('Successfully fetched interview data:', {
-                id: data.id,
-                jobPosition: data.jobPosition,
-                duration: data.duration,
-                type: data.type,
-                hasQuestionList: !!data.questionList
-            });
-            setInterviewData(data);
-            setError(null);
+            setInterviewData(interviews);
+            setLoading(false);
         } catch (error) {
-            console.error('Error in fetchInterviewData:', {
-                message: error.message,
-                stack: error.stack
-            });
-            setError(error.message || 'Failed to load interview data');
-            toast.error('Failed to load interview data');
-        } finally {
+            console.error('Unexpected error:', error);
+            setError('An unexpected error occurred');
             setLoading(false);
         }
     };

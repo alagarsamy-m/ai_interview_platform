@@ -10,7 +10,6 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 export default function Home() {
   const router = useRouter();
   const { user, setUser } = useUser();
-  console.log('Current user:', user);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const supabase = createClientComponentClient();

@@ -10,14 +10,6 @@ export async function GET(request) {
     const code = requestUrl.searchParams.get('code')
     const next = requestUrl.searchParams.get('next') || '/'
 
-    console.log('[Callback] requestUrl:', requestUrl.toString());
-    console.log('[Callback] code:', code, 'next:', next);
-
-    // Await cookies() for async API
-    const cookieStore = await cookies();
-    console.log('[Callback] cookieStore keys:', Object.keys(cookieStore));
-    console.log('[Callback] cookieStore prototype:', Object.getPrototypeOf(cookieStore));
-
     if (code) {
       // Pass the cookies function directly, do NOT await
       const supabase = createRouteHandlerClient({ cookies });
@@ -31,12 +23,10 @@ export async function GET(request) {
       }
 
       // Successful authentication
-      console.log('[Callback] Successful authentication, redirecting to:', `${requestUrl.origin}${next}`);
       return NextResponse.redirect(`${requestUrl.origin}${next}`);
     }
 
     // If no code is present, redirect to the error page
-    console.error('[Callback] No authentication code provided');
     return NextResponse.redirect(
       `${requestUrl.origin}/auth/error?error=${encodeURIComponent('No authentication code provided')}`
     );
