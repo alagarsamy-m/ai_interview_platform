@@ -3,12 +3,90 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useUser } from "./provider";
+import { useRef, useState, useEffect } from "react";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 export default function Home() {
   const router = useRouter();
+  const { user, setUser } = useUser();
+  console.log('Current user:', user);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const supabase = createClientComponentClient();
+
+  // Helper to get initial
+  const getInitial = (user) => {
+    if (!user) return '';
+    if (user.name && user.name.length > 0) return user.name[0].toUpperCase();
+    if (user.email && user.email.length > 0) return user.email[0].toUpperCase();
+    return '';
+  };
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
+  // Sign out handler
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setDropdownOpen(false);
+  };
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden bg-white">
+      {/* Profile or Login Button in Upper Right */}
+      <div className="absolute top-6 right-8 z-20">
+        {user ? (
+          <div className="relative" ref={dropdownRef}>
+            <div
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold text-lg shadow-md border-2 border-white cursor-pointer select-none"
+              title={user.name || user.email}
+              onClick={() => setDropdownOpen((open) => !open)}
+            >
+              {getInitial(user)}
+            </div>
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-30 p-4 flex flex-col items-start min-w-[200px]">
+                <div className="mb-2">
+                  <div className="font-semibold text-gray-900 text-base">{user.name || "No Name"}</div>
+                  <div className="text-gray-500 text-sm break-all">{user.email}</div>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="mt-2 w-full text-left px-3 py-2 rounded-md bg-red-50 hover:bg-red-100 text-red-600 font-medium text-sm focus:outline-none"
+                >
+                  Sign out
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:border-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-lg px-5 py-2 font-semibold shadow-sm"
+            onClick={() => router.push('/auth/signin')}
+          >
+            Login
+          </Button>
+        )}
+      </div>
+
       {/* Animated Gradient Background */}
       <div className="pointer-events-none absolute inset-0 z-0">
         <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-blue-200 via-blue-100 to-transparent animate-float1 opacity-60" />

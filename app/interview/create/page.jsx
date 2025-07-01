@@ -8,10 +8,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ui/use-toast';
+import { useUser } from "@/app/provider";
 
 export default function CreateInterview() {
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useUser();
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState({
@@ -24,6 +26,13 @@ export default function CreateInterview() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Redirect unauthenticated users
+  useEffect(() => {
+    if (mounted && !user) {
+      router.replace('/auth/signin');
+    }
+  }, [mounted, user, router]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

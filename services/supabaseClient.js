@@ -14,7 +14,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
         persistSession: true,
         autoRefreshToken: true,
-        storageKey: 'interview-scheduler-auth',
+        storageKey: 'sb-dwgwqkthsukaxbawlnxd-auth-token',
         storage: {
             getItem: (key) => {
                 if (typeof window === 'undefined') return null;
