@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/lib/supabase';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useToast } from '@/components/ui/use-toast';
 import { useUser } from "@/app/provider";
 
@@ -22,6 +22,7 @@ export default function CreateInterview() {
     duration: '30',
     type: 'technical'
   });
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     setMounted(true);

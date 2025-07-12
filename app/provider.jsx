@@ -1,85 +1,102 @@
 'use client';
-import { UserDetailContext } from "@/context/UserDetailContext";
 import { InterviewDataContext } from "@/context/InterviewDataContext";
-import { supabase } from "@/services/supabaseClient";
-import React, { useContext, useEffect, useState } from "react";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import React, { useContext, useEffect, useState, createContext } from "react";
+
+const UserContext = createContext();
 
 function Provider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [interviewInfo, setInterviewInfo] = useState(null);
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
-    // Fetch the session asynchronously
     const getSession = async () => {
       try {
+        console.log("[Provider] Getting session...");
         const { data: { session } } = await supabase.auth.getSession();
+        console.log("[Provider] Session:", session);
         if (session?.user) {
-          await fetchUserData(session.user);  // Fetch user data if session is available
+          console.log("[Provider] User found, setting user directly");
+          setUser(session.user);
+        } else {
+          console.log("[Provider] No session found");
         }
       } catch (error) {
         console.error("[Provider] Error getting session:", error);
       } finally {
+        console.log("[Provider] Setting loading to false");
         setLoading(false);
       }
     };
 
-    getSession();  // Immediately fetch session on mount
+    getSession();
 
-    // Listen for auth state changes (i.e., login/logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        console.log("[Provider] Auth state changed:", _event, session);
         if (session?.user) {
-          await fetchUserData(session.user);  // Fetch user data if logged in
+          setUser(session.user);
         } else {
-          setUser(null);  // Clear user if logged out
+          setUser(null);
         }
       }
     );
 
     return () => {
-      subscription?.unsubscribe();  // Cleanup the listener on unmount
+      subscription?.unsubscribe();
     };
-  }, []);  // Empty dependency array ensures this runs only on mount
+  }, []);
 
   const fetchUserData = async (authUser) => {
-    console.log("[Provider] Fetching user data for:", authUser.email);
-    
-    // Fetch user data from the 'Users' table
-    const { data: existingUsers, error: fetchError } = await supabase
-      .from("Users")
-      .select("*")
-      .eq("email", authUser.email);
-
-    if (fetchError) {
-      console.error("[Provider] Fetch error:", fetchError);
-      return;
-    }
-
-    if (!existingUsers || existingUsers.length === 0) {
-      console.log("[Provider] User not found, creating new user");
-      // If the user doesn't exist, insert new user data
-      const { data: insertedUser, error: insertError } = await supabase
+    try {
+      console.log("[Provider] Fetching user data for:", authUser.email);
+      
+      // Fetch user data from the 'Users' table
+      const { data: existingUsers, error: fetchError } = await supabase
         .from("Users")
-        .insert([
-          {
-            name: authUser.user_metadata?.name,
-            email: authUser.email,
-            picture: authUser.user_metadata?.picture,
-          },
-        ])
-        .select();
+        .select("*")
+        .eq("email", authUser.email);
 
-      if (insertError) {
-        console.error("[Provider] Insert error:", insertError);
+      if (fetchError) {
+        console.error("[Provider] Fetch error:", fetchError);
+        // Set user to auth user as fallback
+        setUser(authUser);
         return;
       }
 
-      console.log("[Provider] New user created:", insertedUser?.[0]);
-      setUser(insertedUser?.[0]);  // Set inserted user data
-    } else {
-      console.log("[Provider] Existing user found:", existingUsers?.[0]);
-      setUser(existingUsers?.[0]);  // Set existing user data
+      if (!existingUsers || existingUsers.length === 0) {
+        console.log("[Provider] User not found, creating new user");
+        // If the user doesn't exist, insert new user data
+        const { data: insertedUser, error: insertError } = await supabase
+          .from("Users")
+          .insert([
+            {
+              name: authUser.user_metadata?.name,
+              email: authUser.email,
+              picture: authUser.user_metadata?.picture,
+            },
+          ])
+          .select();
+
+        if (insertError) {
+          console.error("[Provider] Insert error:", insertError);
+          // Set user to auth user as fallback
+          setUser(authUser);
+          return;
+        }
+
+        console.log("[Provider] New user created:", insertedUser?.[0]);
+        setUser(insertedUser?.[0]); // Set inserted user data
+      } else {
+        console.log("[Provider] Existing user found:", existingUsers?.[0]);
+        setUser(existingUsers?.[0]); // Set existing user data
+      }
+    } catch (error) {
+      console.error("[Provider] Error in fetchUserData:", error);
+      // Set user to auth user as fallback
+      setUser(authUser);
     }
   };
 
@@ -93,17 +110,13 @@ function Provider({ children }) {
   );
 
   return (
-    <UserDetailContext.Provider value={{ user, setUser, loading }}>
-      <InterviewDataContext.Provider value={{interviewInfo, setInterviewInfo}}>
-        <div>{children}</div>
+    <UserContext.Provider value={{ user, setUser, loading }}>
+      <InterviewDataContext.Provider value={{ interviewInfo, setInterviewInfo }}>
+        {children}
       </InterviewDataContext.Provider>
-    </UserDetailContext.Provider>
+    </UserContext.Provider>
   );
 }
 
 export default Provider;
-
-export const useUser = () => {
-  const context = useContext(UserDetailContext);
-  return context;
-};
+export const useUser = () => useContext(UserContext);

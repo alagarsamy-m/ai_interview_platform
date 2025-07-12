@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useToast } from "@/components/ui/use-toast";
 import React from 'react';
 
@@ -12,6 +12,7 @@ export default function InterviewComplete({ params }) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [transcript, setTranscript] = useState(null);
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     const fetchTranscript = async () => {

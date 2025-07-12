@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { Clock, Loader2Icon, Video } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { supabase } from '@/services/supabaseClient'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { InterviewDataContext } from '@/context/InterviewDataContext'

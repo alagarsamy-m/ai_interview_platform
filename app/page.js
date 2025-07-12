@@ -14,15 +14,12 @@ export default function Home() {
   const dropdownRef = useRef(null);
   const supabase = createClientComponentClient();
 
-  // Debug logging
-  useEffect(() => {
-    console.log("[Home] User state:", user);
-    console.log("[Home] User loading state:", useUser().loading);
-  }, [user]);
+
 
   // Helper to get initial
   const getInitial = (user) => {
     if (!user) return '';
+    if (user.user_metadata?.name && user.user_metadata.name.length > 0) return user.user_metadata.name[0].toUpperCase();
     if (user.name && user.name.length > 0) return user.name[0].toUpperCase();
     if (user.email && user.email.length > 0) return user.email[0].toUpperCase();
     return '';
@@ -68,7 +65,7 @@ export default function Home() {
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-30 p-4 flex flex-col items-start min-w-[200px]">
                 <div className="mb-2">
-                  <div className="font-semibold text-gray-900 text-base">{user.name || "No Name"}</div>
+                  <div className="font-semibold text-gray-900 text-base">{user.user_metadata?.name || user.name || user.email || "No Name"}</div>
                   <div className="text-gray-500 text-sm break-all">{user.email}</div>
                 </div>
                 <button

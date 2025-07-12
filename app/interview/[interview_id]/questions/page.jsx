@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 // Removed Textarea as it's no longer needed for voice interface
-import { supabase } from '@/lib/supabase'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation'
 import { useToast } from "@/components/ui/use-toast"
 import Vapi from '@vapi-ai/web';
@@ -15,6 +15,7 @@ export default function InterviewQuestions({ params }) {
     const { toast } = useToast();
     const [interview, setInterview] = useState(null);
     const [loading, setLoading] = useState(true);
+    const supabase = createClientComponentClient();
 
     const [vapi, setVapi] = useState(null);
     const [isVapiConnected, setIsVapiConnected] = useState(false);

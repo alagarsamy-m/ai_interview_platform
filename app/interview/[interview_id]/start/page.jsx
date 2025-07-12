@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useToast } from "@/components/ui/use-toast";
 
 export default function StartInterview({ params }) {
@@ -10,6 +10,7 @@ export default function StartInterview({ params }) {
   const { toast } = useToast();
   const [interview, setInterview] = useState(null);
   const [loading, setLoading] = useState(true);
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     const fetchInterview = async () => {
