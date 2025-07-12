@@ -23,6 +23,11 @@ export async function GET(request) {
       }
 
       // Successful authentication
+      console.log('[Callback] Successful authentication, redirecting to:', `${requestUrl.origin}${next}`);
+      
+      // Add a small delay to ensure session is properly set
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       return NextResponse.redirect(`${requestUrl.origin}${next}`);
     }
 

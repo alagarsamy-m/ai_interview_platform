@@ -12,9 +12,15 @@ function Provider({ children }) {
   useEffect(() => {
     // Fetch the session asynchronously
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        fetchUserData(session.user);  // Fetch user data if session is available
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          await fetchUserData(session.user);  // Fetch user data if session is available
+        }
+      } catch (error) {
+        console.error("[Provider] Error getting session:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -24,14 +30,12 @@ function Provider({ children }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         if (session?.user) {
-          fetchUserData(session.user);  // Fetch user data if logged in
+          await fetchUserData(session.user);  // Fetch user data if logged in
         } else {
           setUser(null);  // Clear user if logged out
         }
       }
     );
-
-    setLoading(false);
 
     return () => {
       subscription?.unsubscribe();  // Cleanup the listener on unmount
@@ -39,6 +43,8 @@ function Provider({ children }) {
   }, []);  // Empty dependency array ensures this runs only on mount
 
   const fetchUserData = async (authUser) => {
+    console.log("[Provider] Fetching user data for:", authUser.email);
+    
     // Fetch user data from the 'Users' table
     const { data: existingUsers, error: fetchError } = await supabase
       .from("Users")
@@ -51,6 +57,7 @@ function Provider({ children }) {
     }
 
     if (!existingUsers || existingUsers.length === 0) {
+      console.log("[Provider] User not found, creating new user");
       // If the user doesn't exist, insert new user data
       const { data: insertedUser, error: insertError } = await supabase
         .from("Users")
@@ -68,8 +75,10 @@ function Provider({ children }) {
         return;
       }
 
+      console.log("[Provider] New user created:", insertedUser?.[0]);
       setUser(insertedUser?.[0]);  // Set inserted user data
     } else {
+      console.log("[Provider] Existing user found:", existingUsers?.[0]);
       setUser(existingUsers?.[0]);  // Set existing user data
     }
   };

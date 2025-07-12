@@ -4,14 +4,12 @@ import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
-import { use } from 'react';
 
 export default function StartInterview({ params }) {
   const router = useRouter();
   const { toast } = useToast();
   const [interview, setInterview] = useState(null);
   const [loading, setLoading] = useState(true);
-  const unwrappedParams = use(params);
 
   useEffect(() => {
     const fetchInterview = async () => {
@@ -19,7 +17,7 @@ export default function StartInterview({ params }) {
         const { data, error } = await supabase
           .from('interviews')
           .select('*')
-          .eq('interview_id', unwrappedParams.interview_id)
+          .eq('interview_id', params.interview_id)
           .single();
 
         if (error) {
@@ -46,10 +44,10 @@ export default function StartInterview({ params }) {
     };
 
     fetchInterview();
-  }, [unwrappedParams.interview_id, router, toast]);
+  }, [params.interview_id, router, toast]);
 
   const handleStart = () => {
-    router.push(`/interview/${unwrappedParams.interview_id}/questions`);
+    router.push(`/interview/${params.interview_id}/questions`);
   };
 
   if (loading) {
@@ -107,7 +105,7 @@ export default function StartInterview({ params }) {
 
             <div className="space-y-4">
               <Button
-                onClick={() => router.push(`/interview/${unwrappedParams.interview_id}/questions`)}
+                onClick={() => router.push(`/interview/${params.interview_id}/questions`)}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg text-lg font-semibold transition-colors shadow-lg hover:shadow-xl"
               >
                 Start Interview

@@ -14,6 +14,12 @@ export default function Home() {
   const dropdownRef = useRef(null);
   const supabase = createClientComponentClient();
 
+  // Debug logging
+  useEffect(() => {
+    console.log("[Home] User state:", user);
+    console.log("[Home] User loading state:", useUser().loading);
+  }, [user]);
+
   // Helper to get initial
   const getInitial = (user) => {
     if (!user) return '';
