@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/services/supabaseClient';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 export default function AuthTest() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [authUrl, setAuthUrl] = useState('');
+  const supabase = createClientComponentClient();
 
   const testAuth = async () => {
     try {
