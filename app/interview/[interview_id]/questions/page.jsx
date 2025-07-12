@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { useToast } from "@/components/ui/use-toast"
-import { use } from 'react'
 import Vapi from '@vapi-ai/web';
 
 const VAPI_PUBLIC_API_KEY = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY;
@@ -16,7 +15,6 @@ export default function InterviewQuestions({ params }) {
     const { toast } = useToast();
     const [interview, setInterview] = useState(null);
     const [loading, setLoading] = useState(true);
-    const unwrappedParams = use(params);
 
     const [vapi, setVapi] = useState(null);
     const [isVapiConnected, setIsVapiConnected] = useState(false);
@@ -91,7 +89,7 @@ export default function InterviewQuestions({ params }) {
                 const { data, error } = await supabase
                     .from('interviews')
                     .select('*')
-                    .eq('interview_id', unwrappedParams.interview_id)
+                    .eq('interview_id', params.interview_id)
                     .single();
 
                 if (error) {
@@ -136,7 +134,7 @@ export default function InterviewQuestions({ params }) {
         };
 
         fetchInterview();
-    }, [unwrappedParams.interview_id, router, toast]);
+    }, [params.interview_id, router, toast]);
 
     const startCall = async () => {
         if (vapi && !isVapiConnected) {
@@ -173,7 +171,7 @@ export default function InterviewQuestions({ params }) {
                     description: "No conversation recorded to submit.",
                     variant: "info",
                 });
-                router.push(`/interview/${unwrappedParams.interview_id}/complete`);
+                router.push(`/interview/${params.interview_id}/complete`);
                 return;
             }
 
@@ -189,7 +187,7 @@ export default function InterviewQuestions({ params }) {
                     status: 'completed',
                     updated_at: new Date().toISOString()
                 })
-                .eq('interview_id', unwrappedParams.interview_id)
+                .eq('interview_id', params.interview_id)
                 .select()
                 .single();
 
@@ -206,7 +204,7 @@ export default function InterviewQuestions({ params }) {
                 description: "Your interview transcript has been saved!",
             });
 
-            router.push(`/interview/${unwrappedParams.interview_id}/complete`);
+            router.push(`/interview/${params.interview_id}/complete`);
         } catch (error) {
             toast({
                 title: "Error",

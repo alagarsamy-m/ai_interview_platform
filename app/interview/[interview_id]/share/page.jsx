@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, use } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,17 +10,16 @@ import { FaCopy, FaEnvelope, FaWhatsapp, FaLinkedin } from 'react-icons/fa';
 export default function ShareInterview({ params }) {
     const router = useRouter();
     const { toast } = useToast();
-    const unwrappedParams = use(params);
     const [interviewLink, setInterviewLink] = useState('');
 
     useEffect(() => {
-        if (unwrappedParams.interview_id) {
+        if (params.interview_id) {
             // Construct the interview link
             // Assuming the base URL is the current origin
             const origin = typeof window !== 'undefined' ? window.location.origin : '';
-            setInterviewLink(`${origin}/interview/${unwrappedParams.interview_id}/questions`);
+            setInterviewLink(`${origin}/interview/${params.interview_id}/questions`);
         }
-    }, [unwrappedParams.interview_id]);
+    }, [params.interview_id]);
 
     const handleCopyLink = async () => {
         try {
@@ -59,7 +58,7 @@ export default function ShareInterview({ params }) {
         window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=${title}&summary=${summary}`, '_blank');
     };
 
-    if (!unwrappedParams.interview_id) {
+    if (!params.interview_id) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
                 <div className="text-center space-y-6 p-8 bg-white rounded-xl shadow-lg max-w-md">

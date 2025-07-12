@@ -12,7 +12,6 @@ export default function InterviewComplete({ params }) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [transcript, setTranscript] = useState(null);
-  const unwrappedParams = React.use(params);
 
   useEffect(() => {
     const fetchTranscript = async () => {
@@ -20,7 +19,7 @@ export default function InterviewComplete({ params }) {
         const { data, error } = await supabase
           .from('interviews')
           .select('answers, jobPosition')
-          .eq('interview_id', unwrappedParams.interview_id)
+          .eq('interview_id', params.interview_id)
           .single();
 
         if (error) {
@@ -45,7 +44,7 @@ export default function InterviewComplete({ params }) {
     };
 
     fetchTranscript();
-  }, [unwrappedParams.interview_id, toast]);
+  }, [params.interview_id, toast]);
 
   if (loading) {
     return (
