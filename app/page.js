@@ -121,7 +121,13 @@ export default function Home() {
           <Button
             size="lg"
             className="w-full max-w-md transition-all duration-200 shadow-md hover:shadow-xl hover:scale-105 bg-blue-600 hover:bg-blue-700 text-white"
-            onClick={() => router.push('/interview/create')}
+            onClick={() => {
+              if (!user) {
+                router.push('/auth/signin');
+              } else {
+                router.push('/interview/create');
+              }
+            }}
           >
             Create New Interview
           </Button>
