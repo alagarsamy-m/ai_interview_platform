@@ -135,7 +135,7 @@ export default function Home() {
           <div className="p-6 bg-white rounded-lg shadow-md border border-blue-50 hover:shadow-lg transition-all duration-200">
             <h3 className="text-lg font-semibold mb-2 text-blue-700">AI-Generated Questions</h3>
             <p className="text-gray-600">
-              Customized questions based on job position and type
+              Customized questions based on job position and types
             </p>
           </div>
           
