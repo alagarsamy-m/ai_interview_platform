@@ -63,14 +63,14 @@ export default function Home() {
               {getInitial(user)}
             </div>
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-30 p-4 flex flex-col items-start min-w-[200px]">
+              <div className="absolute right-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-30 p-4 flex flex-col items-start min-w-[200px]">
                 <div className="mb-2">
                   <div className="font-semibold text-gray-900 text-base">{user.user_metadata?.name || user.name || user.email || "No Name"}</div>
                   <div className="text-gray-500 text-sm break-all">{user.email}</div>
                 </div>
                 <button
                   onClick={handleSignOut}
-                  className="mt-2 w-full text-left px-3 py-2 rounded-md bg-red-50 hover:bg-red-100 text-red-600 font-medium text-sm focus:outline-none"
+                  className="mt-2 w-full text-left px-4 py-2 rounded-md bg-red-50 hover:bg-red-100 text-red-600 font-medium text-sm focus:outline-none"
                 >
                   Sign out
                 </button>
@@ -141,7 +141,7 @@ export default function Home() {
           <div className="p-6 bg-white rounded-lg shadow-md border border-blue-50 hover:shadow-lg transition-all duration-200">
             <h3 className="text-lg font-semibold mb-2 text-blue-700">AI-Generated Questions</h3>
             <p className="text-gray-600">
-              Customized questions based on job position and types
+               Questions based on job position
             </p>
           </div>
           
