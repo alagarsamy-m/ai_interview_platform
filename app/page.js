@@ -52,7 +52,7 @@ export default function Home() {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden bg-white">
       {/* Profile or Login Button in Upper Right */}
-      <div className="absolute top-6 right-8 z-20">
+      <div className="absolute top-6 right-8 z-21">
         {user ? (
           <div className="relative" ref={dropdownRef}>
             <div
