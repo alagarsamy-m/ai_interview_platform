@@ -36,7 +36,8 @@ pipeline {
 
         stage('Archive Build') {
             steps {
-                archiveArtifacts artifacts: 'build/**', fingerprint: true
+                // Archive the Next.js build output folder
+                archiveArtifacts artifacts: '.next/**', fingerprint: true
             }
         }
     }
