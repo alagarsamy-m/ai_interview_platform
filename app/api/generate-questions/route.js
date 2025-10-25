@@ -60,7 +60,7 @@ export async function POST(request) {
                 throw new Error('Response is not an array');
             }
         } catch (error) {
-            throw new Error('Failed to parse questions from response');
+            throw new Error('Failed to parsing questions from response');
         }
 
         return NextResponse.json({ questions });
