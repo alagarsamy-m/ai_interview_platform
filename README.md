@@ -170,3 +170,9 @@ CREATE TABLE interviews (
 - **Dynamic Question Generation** - Context-aware interview questions
 - **Natural Language Processing** - Human-like conversation flow
 
+## Modules & Contributions
+-**Frontend Development** - Dhayanithi S
+-**Backend Development** - Deepak M
+-**Database Integration** - Alagarsamy M
+-**AI Configurations** - Eswaran J
+-**Pipeline Configurations** - Rajesh R
