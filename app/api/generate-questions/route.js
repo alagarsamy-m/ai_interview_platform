@@ -48,7 +48,7 @@ export async function POST(request) {
         const data = await response.json();
 
         if (!data.choices?.[0]?.message?.content) {
-            throw new Error('Invalid response format from OpenRouter');
+            throw new Error('Invalid response received from OpenRouter');
         }
 
         let questions;
