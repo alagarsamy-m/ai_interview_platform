@@ -171,8 +171,8 @@ CREATE TABLE interviews (
 - **Natural Language Processing** - Human-like conversation flow
 
 ## Modules & Contributions
-- **Frontend Development** - Dhayanithi S
-- **Backend Development** - Deepak M
-- **Database Integration** - Alagarsamy M
-- **AI Configurations** - Eswaran J
-- **Pipeline Configurations** - Rajesh R
+- **Frontend Development** - DHAYANITHI S
+- **Backend Development** - DEEPAK M
+- **Database Integration** - ALAGARSAMY M
+- **AI Configurations** - ESWARAN J
+- **Pipeline Configurations** - RAJESH R
