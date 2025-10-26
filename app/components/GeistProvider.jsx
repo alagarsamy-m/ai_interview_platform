@@ -1,5 +1,7 @@
 'use client'
 
+//fonts style
+
 import { Inter } from 'next/font/google'
 
 const inter = Inter({
